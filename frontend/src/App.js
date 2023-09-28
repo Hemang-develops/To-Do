@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import Modal from "./components/Modal";
 import axios from "axios";
+import Login from "./components/Login";
 
 const App = () => {
   const [viewCompleted, setViewCompleted] = useState(false);
   const [todoList, setTodoList] = useState([]);
-  const [modal, setModal] = useState(false);
+  const [editModal, setEditModal] = useState(false);
+  const [loginModal, setLoginModal] = useState(false);
   const [activeItem, setActiveItem] = useState({
     title: "",
     description: "",
@@ -23,12 +25,16 @@ const App = () => {
       .catch((err) => console.log(err));
   };
 
-  const toggle = () => {
-    setModal(!modal);
+  const editToggle = () => {
+    setEditModal(!editModal);
+  };
+
+  const loginToggle = () => {
+    setLoginModal(!loginModal);
   };
 
   const handleSubmit = (item) => {
-    toggle();
+    editToggle();
 
     if (item.id) {
       axios
@@ -51,12 +57,12 @@ const App = () => {
     const item = { title: "", description: "", completed: false };
 
     setActiveItem(item);
-    setModal(!modal);
+    setEditModal(!editModal);
   };
 
   const editItem = (item) => {
     setActiveItem(item);
-    setModal(!modal);
+    setEditModal(!editModal);
   };
 
   const displayCompleted = (status) => {
@@ -88,57 +94,69 @@ const App = () => {
     );
 
     return newItems.map((item) => (
-      <li
-        key={item.id}
-        className="list-group-item d-flex justify-content-between align-items-center"
-      >
-        <span
-          className={`todo-title mr-2 ${viewCompleted ? "completed-todo" : ""
-            }`}
-          title={item.description}
+      <div class="border border-gray-200 p-4 my-2">
+        <li
+          key={item.id}
+          className="flex justify-between items-center py-2 px-4 border-t border-gray-200 bg-white"
         >
-          {item.title}
-        </span>
-        <span>
-          <button
-            className="btn btn-secondary mr-2"
-            onClick={() => editItem(item)}
+          <span
+            className={`todo-title mr-5 ${viewCompleted ? "completed-todo" : ""}`}
+            title={item.description}
           >
-            Edit
-          </button>
-          <button
-            className="btn btn-danger"
-            onClick={() => handleDelete(item)}
-          >
-            Delete
-          </button>
-        </span>
-      </li>
+            {item.title}
+          </span>
+          <span className="ml-auto">
+            <button
+              className="bg-secondary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
+              onClick={() => editItem(item)}
+            >
+              Edit
+            </button>
+            <button
+              className="bg-danger hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              onClick={() => handleDelete(item)}
+            >
+              Delete
+            </button>
+          </span>
+        </li>
+
+      </div>
     ));
   };
 
   return (
-    <main className="container">
-      <h1 className="text-white text-uppercase text-center my-4">Todo app</h1>
-      <div className="row">
-        <div className="col-md-6 col-sm-10 mx-auto p-0">
-          <div className="card p-3">
+    <main className="container mx-auto">
+      <h1 className="text-black text-uppercase text-center my-4">To-do app</h1>
+      <div className="flex flex-col md:flex-row">
+        <div className="md:w-1/2 sm:w-full mx-auto p-0">
+          <div className="bg-white border rounded-lg shadow-md p-3">
             <div className="mb-4">
-              <button className="btn btn-primary" onClick={createItem}>
+              <button className="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-3" onClick={createItem}>
                 Add task
+              </button>
+              <button className="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={loginToggle}>
+                Log In
               </button>
             </div>
             {renderTabList()}
-            <ul className="list-group list-group-flush border-top-0">
+            <ul className="pl-0 divide-y divide-gray-200 list-unstyled">
               {renderItems()}
             </ul>
           </div>
         </div>
       </div>
-      {modal ? (
+      {editModal ? (
         <Modal
           activeItem={activeItem}
-          toggle={toggle}
+          toggle={editToggle}
+          onSave={handleSubmit}
+        />
+      ) : null}
+      {loginModal ? (
+        <Login
+          activeItem={activeItem}
+          toggle={loginToggle}
           onSave={handleSubmit}
         />
       ) : null}
